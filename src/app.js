@@ -1,26 +1,22 @@
 const express=require('express');
+const {adminAuth,userAuth}=require('./middlewares/auth')
 
 const app=express()
 
-app.get('/user',(req,res)=>{
-    res.send({firstName:"Uma Mahesh",lastName:"Giduthuri"})
+app.use("/admin",adminAuth)
+
+app.use("/user/:token",userAuth,(req,res)=>{
+      res.send("From user")
 })
 
-app.post('/user',(req,res)=>{
-    res.send("Data saved Successfully")
+app.use("/admin/getUserData",(req,res)=>{
+    res.send("User data sent")
 })
 
-app.delete('/user',(req,res)=>{
-    res.send("User Deleted successfully")
+app.use("/admin/deleteUserData",(req,res)=>{
+    res.send("User data deleted")
 })
 
-app.put('/user',(req,res)=>{
-    res.send("put successful")
-})
-
-app.patch('/user',(req,res)=>{
-    res.send("Patch successful")
-})
 
 
 
