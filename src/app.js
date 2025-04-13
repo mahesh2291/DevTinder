@@ -5,7 +5,12 @@ const app=express()
 
 app.use("/admin",adminAuth)
 
-app.use("/user/:token",userAuth,(req,res)=>{
+
+app.use("/user/login",(req,res)=>{
+    res.send("from login page")
+})
+
+app.use("/user",userAuth,(req,res)=>{
       res.send("From user")
 })
 

@@ -11,7 +11,7 @@ const adminAuth=(req,res,next)=>{
 }
 
 const userAuth=(req,res,next)=>{
-    const token=req.params.token;
+    const token="123";
      
     const isAuthorized= token==="123"
 
