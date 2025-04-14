@@ -3,15 +3,11 @@ const connectDB=require("./config/database");
 const User = require('./models/user');
 const app=express()
 
+app.use(express.json())
 
+// signup API
 app.post('/signup',async (req,res)=>{
-    console.log(req.body)
-     const user=new User({
-        firstName:req.body.firstName,
-        lastName:req.body.lastName,
-        emailId:req.body.emailId,
-        password:req.body.password
-     })
+     const user=new User(req.body)
         try{
             await  user.save();
             res.send("User added successfully!!")
@@ -22,7 +18,58 @@ app.post('/signup',async (req,res)=>{
   
 })
 
+// single user API
+app.get('/user',async (req,res)=>{
+    const userEmailId=req.body.email
+    try{
+         const user=await User.find({email:userEmailId}) 
+         if(user.length===0) {
+           res.status(404).send("User not found")
+         } else {
+            res.send(user)
+         }
+    }
+    catch (err) {
+      res.status(400).send(`something went wrong ${err}`)
+    }
+})
 
+// List of users API
+app.get('/feed',async (req,res)=>{
+   
+    try{
+         const user=await User.find({}) 
+         res.send(user)
+    }
+    catch (err) {
+      res.status(400).send(`something went wrong ${err}`)
+    }
+})
+
+//Deleting user
+app.delete('/user', async (req,res)=>{
+    const id=req.body.id
+
+    try {
+        const user= await User.findByIdAndDelete(id)
+        res.send("user Deleted")
+    } catch (err) {
+        res.status(400).send(" something went wrong")
+    }
+
+})
+
+app.patch('/user', async(req,res)=>{
+    const updatedData=req.body
+    const id=req.body.id
+
+    try {
+        const user=await User.findByIdAndUpdate(id,updatedData)
+        res.send("User updated successfully")
+    } catch (err) {
+        res.status(400).send("something went wrong")
+    }
+})
 
 connectDB().then(()=>{
     console.log("DB connection successful")
