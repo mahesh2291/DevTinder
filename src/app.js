@@ -1,30 +1,35 @@
 const express=require('express');
-const {adminAuth,userAuth}=require('./middlewares/auth')
-
+const connectDB=require("./config/database");
+const User = require('./models/user');
 const app=express()
 
-app.use("/admin",adminAuth)
 
-
-app.use("/user/login",(req,res)=>{
-    res.send("from login page")
+app.post('/signup',async (req,res)=>{
+    console.log(req.body)
+     const user=new User({
+        firstName:req.body.firstName,
+        lastName:req.body.lastName,
+        emailId:req.body.emailId,
+        password:req.body.password
+     })
+        try{
+            await  user.save();
+            res.send("User added successfully!!")
+        }
+        catch(err){
+            res.status(400).send("Error saving user")
+        }
+  
 })
 
-app.use("/user",userAuth,(req,res)=>{
-      res.send("From user")
-})
-
-app.use("/admin/getUserData",(req,res)=>{
-    res.send("User data sent")
-})
-
-app.use("/admin/deleteUserData",(req,res)=>{
-    res.send("User data deleted")
-})
 
 
-
-
-app.listen(3000,()=>{
+connectDB().then(()=>{
+    console.log("DB connection successful")
+    app.listen(3000,()=>{
     console.log("Server is Running")
 })
+}).catch((err)=>{
+   console.log("DB connection Failed:"+ err)
+})
+
