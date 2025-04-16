@@ -13,7 +13,7 @@ app.post('/signup',async (req,res)=>{
             res.send("User added successfully!!")
         }
         catch(err){
-            res.status(400).send("Error saving user")
+            res.status(400).send("Error saving user"+ err)
         }
   
 })
@@ -64,10 +64,10 @@ app.patch('/user', async(req,res)=>{
     const id=req.body.id
 
     try {
-        const user=await User.findByIdAndUpdate(id,updatedData)
+        const user=await User.findByIdAndUpdate(id,updatedData,{runValidators:true})
         res.send("User updated successfully")
     } catch (err) {
-        res.status(400).send("something went wrong")
+        res.status(400).send("something went wrong"+err)
     }
 })
 
