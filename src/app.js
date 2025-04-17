@@ -6,6 +6,7 @@ const User = require('./models/user');
 const { validateSignup } = require('./utils/validateSignup');
 const cookieParser = require('cookie-parser');
 const app=express()
+const {userAuth}=require('./middlewares/auth')
 
 app.use(express.json())
 app.use(cookieParser())
@@ -101,16 +102,16 @@ app.post('/login',async(req,res)=>{
             throw new Error("Invalid credentials")
         }
 
-        const isPasswordValid=await bcrypt.compare(password,user.password)
+        const isPasswordValid=await user.validatePasswordHash(password)
         
 
         if(!isPasswordValid) {
             throw new Error("Invalid credentials")
         } else {
             //JWT 
-           const token= await jwt.sign({_id:user._id},'Mahesh2291')
-           console.log(token)
-           res.cookie("token",token)
+           const token= await user.getJWT()
+
+            res.cookie("token",token)
             res.send("Authentication successful")
         }
 
@@ -120,25 +121,10 @@ app.post('/login',async(req,res)=>{
 } )
 
 
-app.get('/profile',async(req,res)=>{
+app.get('/profile',userAuth,async(req,res)=>{
     
     try {
-    const cookie=req.cookies
-
-    const {token}=cookie
-    if(!token) {
-        throw new Error("Invalid token")
-    }
-
-    const decodedMessage=await jwt.verify(token,"Mahesh2291")
-
-    const {_id}=decodedMessage
-
-    const user= await User.findById(_id)
-    console.log(user)
-    if(!user) {
-        throw new Error("User doesnt exist")
-    }
+        const user=req.user
     res.send(user)
 } catch (err) {
     res.status(400).send('Error'+ err)
