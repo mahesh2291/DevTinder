@@ -1,14 +1,21 @@
 const express=require('express');
 const connectDB=require("./config/database");
+const bcrypt=require('bcrypt')
 const User = require('./models/user');
+const { validateSignup } = require('./utils/validateSignup');
 const app=express()
 
 app.use(express.json())
 
 // signup API
 app.post('/signup',async (req,res)=>{
-     const user=new User(req.body)
+    const {firstName,lastName,email,password,age}=req.body
         try{
+            validateSignup(req)
+            const passwordHash=await bcrypt.hash(password,10)
+            const user=new User({
+                firstName,lastName,email,password:passwordHash,age
+            })
             await  user.save();
             res.send("User added successfully!!")
         }
@@ -59,17 +66,52 @@ app.delete('/user', async (req,res)=>{
 
 })
 
-app.patch('/user', async(req,res)=>{
+app.patch('/user/:id', async(req,res)=>{
     const updatedData=req.body
-    const id=req.body.id
-
+    const id=req.params.id
+    
     try {
+
+    const ALLOWED_UPDATES=["photoUrl","about","gender","age","skills"];
+    const isUpdatedAllowed=Object.keys(updatedData).every(k=>ALLOWED_UPDATES.includes(k))
+    if(!isUpdatedAllowed) {
+        throw new Error("Update not allowed");
+    }
+
+    if(updatedData?.skills?.length>10) {
+        throw new Error("SKills cannot be more than 10")
+    }
+
         const user=await User.findByIdAndUpdate(id,updatedData,{runValidators:true})
         res.send("User updated successfully")
     } catch (err) {
         res.status(400).send("something went wrong"+err)
     }
 })
+
+app.use('/login',async(req,res)=>{
+    const {email,password}=req.body
+
+    try{
+        const user=await User.findOne({email:email})
+        console.log(user)
+        if(!user) {
+            throw new Error("Invalid credentials")
+        }
+
+        const isPasswordValid=await bcrypt.compare(password,user.password)
+        console.log(isPasswordValid)
+
+        if(!isPasswordValid) {
+            throw new Error("Invalid credentials")
+        } else {
+            res.send("Authentication successful")
+        }
+
+    } catch (err) {
+        res.status(400).send(`${err}`)
+    }
+} )
 
 connectDB().then(()=>{
     console.log("DB connection successful")

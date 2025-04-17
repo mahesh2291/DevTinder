@@ -1,15 +1,17 @@
 const mongoose=require('mongoose')
+const validator=require('validator')
 
 
 const userSchema=new mongoose.Schema({
     firstName:{type:String,required:true},
     lastName:{type:String,required:true},
-    email:{type:String,required:true,trim:true},
+    email:{type:String,required:true,trim:true,validate(value){
+        if(!validator.isEmail(value)) {
+            throw new Error("Email adress not valid")
+        }
+    }},
     password:{type:String,required:true,minLength:8,validate(value){
-       const regex=new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")
-       console.log(value)
-       console.log(regex.test(value))
-       if(!regex.test(value)) {
+       if(!validator.isStrongPassword(value)) {
         throw new Error("Password doesnt meet requiments")
        }
     }},
