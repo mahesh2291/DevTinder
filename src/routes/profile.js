@@ -1,6 +1,7 @@
 const express=require('express')
 const { userAuth } = require('../middlewares/auth')
 const {validateEditProfileData}= require('../utils/validateSignup')
+const validator=require('validator')
 const bcrypt=require('bcrypt')
 
 const profileRouter=express.Router()
@@ -40,7 +41,9 @@ profileRouter.patch('/profile/forgotpassword',userAuth,async(req,res)=>{
         if(!isPasswordValid) {
             throw new Error("Entered old password doesnt match")
         }
-  
+       if(!validator.isStrongPassword(newPassword)) {
+                throw new Error("Password doesnt meet requiments")
+               }
         const newPasswordToDb=await bcrypt.hash(newPassword,10)
         user.password=newPasswordToDb
         console.log(user)
