@@ -46,7 +46,7 @@ profileRouter.patch('/profile/forgotpassword',userAuth,async(req,res)=>{
                }
         const newPasswordToDb=await bcrypt.hash(newPassword,10)
         user.password=newPasswordToDb
-        console.log(user)
+    
         await user.save()
         res.send('Password changed successfully')
 
