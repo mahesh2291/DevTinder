@@ -11,9 +11,15 @@ requestRouter.post('/send/request/:status/:userId',userAuth,async(req,res)=>{
       const fromUserId=req.user
 
     try {
+
         const validStatus=['ignored','interested']
 
         const isStatusValid=validStatus.includes(status) 
+
+         if(!isStatusValid) {
+            throw new Error('Invalid Status Sent')
+        }
+
 
         const isToUserIdValid=await User.findById(toUserId)
 
@@ -21,10 +27,6 @@ requestRouter.post('/send/request/:status/:userId',userAuth,async(req,res)=>{
             throw new Error('User doesnt exist')
         }
 
-
-        if(!isStatusValid) {
-            throw new Error('Invalid Status Sent')
-        }
 
         const isConnectionExist=await ConnectionRequest.findOne({
             $or : [

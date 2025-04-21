@@ -30,6 +30,8 @@ const userSchema=new mongoose.Schema({
     timestamps:true
 })
 
+userSchema.index({firstName:1,lastName:1})
+
 userSchema.methods.getJWT=async function() {
     const user=this
    const token= jwt.sign({_id:user._id},'Mahesh2291',{expiresIn:'2d'})
