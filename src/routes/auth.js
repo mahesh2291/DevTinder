@@ -37,7 +37,7 @@ authRouter.post('/login',async(req,res)=>{
         } else {
             //JWT 
            const token= await user.getJWT()
-
+         
             res.cookie("token",token)
             res.send(user)
         }
