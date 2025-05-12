@@ -6,6 +6,7 @@ const authRouter=require('./routes/auth')
 const profileRouter=require('./routes/profile')
 const requestRouter=require('./routes/requests');
 const userRouter = require('./routes/user');
+require('dotenv').config()
 
 
 const app=express()
@@ -26,7 +27,7 @@ app.use('/',userRouter)
 
 connectDB().then(()=>{
     console.log("DB connection successful")
-    app.listen(3000,()=>{
+    app.listen(process.env.PORT,()=>{
     console.log("Server is Running")
 })
 }).catch((err)=>{
