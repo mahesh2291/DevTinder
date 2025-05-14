@@ -1,6 +1,7 @@
 const { text } = require('express')
 const {Chat}=require('../models/chat')
 const socket=require('socket.io')
+const connectionRequest = require('../models/connectionRequest')
 
 const intializeSocket=(server)=>{
     
@@ -21,6 +22,20 @@ const intializeSocket=(server)=>{
             const roomId=[userId,targetUserId].sort().join("_")
             console.log(firstName+ " "+ text)
             try {
+
+                const isConnected = await connectionRequest.findOne({
+                    $or: [
+                      { fromUserId: userId, toUserId: targetUserId, status: 'accepted' },
+                      { fromUserId: targetUserId, toUserId: userId, status: 'accepted' }
+                    ]
+                  });
+          
+                  if (!isConnected) {
+                    return socket.emit("error", {
+                      message: "You must be connected to this user to send messages."
+                    });
+                  }
+          
                
                let chat=await Chat.findOne({
                  participants:{$all:[userId,targetUserId]}
