@@ -8,6 +8,7 @@ const requestRouter=require('./routes/requests');
 const userRouter = require('./routes/user');
 const http=require('http');
 const intializeSocket = require('./utils/socket');
+const chatRouter = require('./routes/chat');
 require('dotenv').config()
 
 
@@ -29,6 +30,7 @@ app.use('/',authRouter)
 app.use('/', profileRouter)
 app.use('/', requestRouter)
 app.use('/',userRouter)
+app.use('/',chatRouter)
 
 connectDB().then(()=>{
     console.log("DB connection successful")
